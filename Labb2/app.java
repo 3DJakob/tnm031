@@ -7,38 +7,23 @@ class UserInputDemo1 {
         System.out.print("Enter a string to encrypt: ");
         String mySecret = ReadInput();
         System.out.println("You have entered: " + mySecret);
-        BigInteger bigB = ConvertString(mySecret);
-        int p = 88532096;
-        int q = 23885541;
-        int n = p * q;
+        BigInteger m = ConvertString(mySecret);
         BigInteger e = new BigInteger("9007"); // random prime
-        // BigInteger e = bigPrime();
-        
-        // for (int i = 9009; 2 < i; i--) {
-        //     int gcd = GCD(i, (p - 1) * (q - 1));
-        //     if (gcd == 1) {
-        //         System.out.println("e = " + i);
-        //         e = i;
-        //         break;
-        //     }
-        // }
 
-        // BigInteger d = new BigInteger("116402471153538991"); // d should be this
-
-        // Choose e such gcd(e , ϕ(n) ) = 1 
-
-
-        // int ans = d.multiply(e);
-        BigInteger bigP = new BigInteger("88532096");
-        BigInteger bigQ = new BigInteger("23885541");
+        BigInteger bigP = new BigInteger("885320963");
+        BigInteger bigQ = new BigInteger("238855417");
         BigInteger bigE = new BigInteger(String.valueOf(e));
-        // probable prime!
+        BigInteger bigN = bigP.multiply(bigQ);
 
-        BigInteger t = (bigP.subtract(BigInteger.ONE)).multiply(bigQ.subtract(BigInteger.ONE));
-        BigInteger d = bigE.modInverse(t);
+        BigInteger de = (bigP.subtract(BigInteger.ONE)).multiply(bigQ.subtract(BigInteger.ONE));
+        BigInteger d = bigE.modInverse(de);  // Public key
+        System.out.println("d = " + d);
+        System.out.println("Message to encrypt: " + mySecret);
 
-        System.out.println("ans = " + d);
-
+        // BOB
+        BigInteger bigC = m.modPow(bigE, bigN);
+        BigInteger originalMsg = bigC.modPow(d, bigN);
+        System.out.println("Decrypted message: " + ConvertBack(originalMsg));
     }
 
     public static BigInteger ConvertString(String arg) {
