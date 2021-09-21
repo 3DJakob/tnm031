@@ -4,25 +4,43 @@ import java.security.SecureRandom;
 
 class UserInputDemo1 {
     public static void main(String[] args) {
+
+        SecureRandom rand = new SecureRandom();
+        // Generate big prime numbers
+        // p, q, d secret
+        BigInteger e = bigPrime(rand);  // Public key
+        BigInteger p = bigPrime(rand);
+        BigInteger q = bigPrime(rand);
+
+
+        // Make sure p > q
+        if (p.compareTo(q) < 0) {
+            BigInteger temp = p;
+            p = q;
+            q = temp;
+        }
+        
+        // n = p * q
+        BigInteger n = p.multiply(q); // Public key
+
+        // de = (p - 1) (q - 1)
+        BigInteger de = (p.subtract(BigInteger.ONE)).multiply(q.subtract(BigInteger.ONE));
+        // d = 1 / mod(de)
+        BigInteger d = e.modInverse(de);  // Private key
+        // System.out.println(" = " + d);
+
+        
+        // e, n public
         System.out.print("Enter a string to encrypt: ");
         String mySecret = ReadInput();
         System.out.println("You have entered: " + mySecret);
+        // Encrypting
+        // Convert string to BigInt
         BigInteger m = ConvertString(mySecret);
-        BigInteger e = new BigInteger("9007"); // random prime
-
-        BigInteger bigP = new BigInteger("885320963");
-        BigInteger bigQ = new BigInteger("238855417");
-        BigInteger bigE = new BigInteger(String.valueOf(e));
-        BigInteger bigN = bigP.multiply(bigQ);
-
-        BigInteger de = (bigP.subtract(BigInteger.ONE)).multiply(bigQ.subtract(BigInteger.ONE));
-        BigInteger d = bigE.modInverse(de);  // Public key
-        System.out.println("d = " + d);
-        System.out.println("Message to encrypt: " + mySecret);
+        BigInteger bigC = m.modPow(e, n);
 
         // BOB
-        BigInteger bigC = m.modPow(bigE, bigN);
-        BigInteger originalMsg = bigC.modPow(d, bigN);
+        BigInteger originalMsg = bigC.modPow(d, n);
         System.out.println("Decrypted message: " + ConvertBack(originalMsg));
     }
 
@@ -40,8 +58,7 @@ class UserInputDemo1 {
         return str;
     }
 
-    public static BigInteger bigPrime() {
-        SecureRandom rand = new SecureRandom();
+    public static BigInteger bigPrime(SecureRandom rand) {
         return BigInteger.probablePrime(1024, rand);
     }
 
