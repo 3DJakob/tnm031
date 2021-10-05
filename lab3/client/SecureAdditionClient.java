@@ -60,7 +60,30 @@ public class SecureAdditionClient {
 
 			System.out.println(">>>> Sending order " + action + " to SecureAdditionServer");
 			socketOut.println(action);
-			System.out.println(socketIn.readLine());
+			String response = socketIn.readLine();
+
+			if (action.indexOf("download") == 0) {
+				String[] words = action.split(" ", 3);
+				
+				File myObj = new File(words[1] + ".txt");
+				if (myObj.createNewFile()) {
+
+					// System.out.println("File created: " + myObj.getName());
+
+					try (FileWriter f = new FileWriter(myObj.getName(), true);
+							BufferedWriter b = new BufferedWriter(f);
+							PrintWriter p = new PrintWriter(b);) {
+						p.println(response);
+					} catch (IOException i) {
+						i.printStackTrace();
+					}
+
+				} else {
+					System.out.println("File already exists.");
+				}
+			} else {
+				System.out.println(response);
+			}
 
 			socketOut.println("");
 		} catch (Exception x) {
@@ -94,7 +117,7 @@ public class SecureAdditionClient {
 	public void printMenu() {
 		System.out.println("SSL Command menu");
 		System.out.println("keyword filename data");
-		System.out.println("keyword [delete, create, read] - the action to take ");
+		System.out.println("keyword [delete, upload, download] - the action to take ");
 		System.out.println("filename [*] - The name of the file");
 		System.out.println("data [*] - The content to put in the file");
 	}

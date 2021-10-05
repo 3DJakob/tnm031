@@ -90,7 +90,7 @@ public class SecureAdditionServer {
 								message = "Failed to delete the file.";
 							}
 							break;
-						case "create":
+						case "upload":
 							try {
 								File myObj = new File(fileName + ".txt");
 								if (myObj.createNewFile()) {
@@ -117,7 +117,7 @@ public class SecureAdditionServer {
 								e.printStackTrace();
 							}
 							break;
-						case "read":
+						case "download":
 							try (BufferedReader br2 = new BufferedReader(new FileReader(fileName + ".txt"))) {
 								String line;
 								while ((line = br2.readLine()) != null) {
@@ -125,6 +125,8 @@ public class SecureAdditionServer {
 									message = message + line;
 								}
 								
+							} catch (IOException e) {
+								message = "Error no such file";
 							}
 							break;
 						default:
