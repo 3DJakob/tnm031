@@ -6,6 +6,11 @@ import java.net.*;
 import javax.net.ssl.*;
 import java.security.*;
 import java.util.StringTokenizer;
+import java.io.File;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 public class SecureAdditionServer {
 	private int port;
@@ -44,8 +49,8 @@ public class SecureAdditionServer {
 			sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
 			SSLServerSocketFactory sslServerFactory = sslContext.getServerSocketFactory();
 			SSLServerSocket sss = (SSLServerSocket) sslServerFactory.createServerSocket(port);
+			System.out.println(sss.getSupportedCipherSuites()[0].toString());
 			sss.setEnabledCipherSuites(sss.getSupportedCipherSuites());
-
 			System.out.println("\n>>>> SecureAdditionServer: active");
 			System.out.println("\n>>>> Done ");
 			SSLSocket incoming = (SSLSocket) sss.accept();
@@ -55,20 +60,85 @@ public class SecureAdditionServer {
 
 			String str;
 			while (!(str = in.readLine()).equals("")) {
-				double result = 0;
+				String operation = "";
+				String fileName = "";
+				String content = "";
+				String message = "";
 				StringTokenizer st = new StringTokenizer(str);
 				try {
 					while (st.hasMoreTokens()) {
-						Double d = new Double(st.nextToken());
-						result += d.doubleValue();
+						if (operation == "") {
+							operation = st.nextToken();
+						} else if (fileName == "") {
+							fileName = st.nextToken();
+						} else {
+
+							content = content + st.nextToken() + ' ';
+						}
 					}
-					out.println("The result is " + result);
-				} catch (NumberFormatException nfe) {
-					out.println("Sorry, your list contains an invalid number");
+
+					// Execute
+
+					switch (operation) {
+						case "delete":
+							File fileToDelete = new File(fileName + ".txt");
+							if (fileToDelete.delete()) {
+								System.out.println("Deleted the file: " + fileToDelete.getName());
+								message = "Deleted the file: " + fileToDelete.getName();
+							} else {
+								System.out.println("Failed to delete the file.");
+								message = "Failed to delete the file.";
+							}
+							break;
+						case "create":
+							try {
+								File myObj = new File(fileName + ".txt");
+								if (myObj.createNewFile()) {
+
+									System.out.println("File created: " + myObj.getName());
+									message = "File created: " + myObj.getName();
+
+									try (FileWriter f = new FileWriter(myObj.getName(), true);
+											BufferedWriter b = new BufferedWriter(f);
+											PrintWriter p = new PrintWriter(b);) {
+										p.println(content);
+									} catch (IOException i) {
+										i.printStackTrace();
+									}
+
+								} else {
+									System.out.println("File already exists.");
+									message = "File already exists.";
+								}
+
+							} catch (IOException e) {
+								System.out.println("An error has occurred.");
+								message = "An error has occurred.";
+								e.printStackTrace();
+							}
+							break;
+						case "read":
+							try (BufferedReader br2 = new BufferedReader(new FileReader(fileName + ".txt"))) {
+								String line;
+								while ((line = br2.readLine()) != null) {
+									// System.out.println(line);
+									message = message + line;
+								}
+								
+							}
+							break;
+						default:
+							System.out.println("Not valid");
+							message = "Invalid command";
+							break;
+					}
+
+					out.println(message);
+				} catch (Exception e) {
+					out.println("An unexpected error occured");
 				}
 			}
 
-			
 			incoming.close();
 		} catch (Exception x) {
 			System.out.println(x);
@@ -87,6 +157,9 @@ public class SecureAdditionServer {
 			port = Integer.parseInt(args[0]);
 		}
 		SecureAdditionServer addServe = new SecureAdditionServer(port);
-		addServe.run();
+
+		while (true) {
+			addServe.run();
+		}
 	}
 }
