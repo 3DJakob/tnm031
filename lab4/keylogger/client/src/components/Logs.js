@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
+import FuzzySearch from 'fuzzy-search'
+
 // max-width: 800px;
 const Container = styled.div`
     display: flex;
@@ -7,6 +9,7 @@ const Container = styled.div`
     justify-content: center;
     align-items: center;
     flex: 1;
+    max-width: 500px;
 `
 
 const List = styled.div`
@@ -20,7 +23,6 @@ const Title = styled.h1`
 
 const ListContainer = styled.div`
     position: relative;
-    max-width: 500px;
     width: 100%;
     max-height: 50vh;
 `
@@ -35,8 +37,31 @@ const Fade = styled.div`
     background: linear-gradient(180deg, rgba(229,122,68,0) 0%, rgba(229,122,68,1) 100%);
 `
 
+const SearchBox = styled.input`
+    display: flex;
+    padding: 20px;
+    margin: 20px;
+    font-size: 16px;
+    flex: 1;
+    width: -webkit-fill-available;
+    background-color: #fff;
+    border-radius: 10px;
+    -webkit-appearance: none;
+    border:none;
+    background-image:none;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+    box-sizing: border-box;
+`
+
 const Logs = ({ }) => {
     const [logs, setLogs] = useState([])
+    const [search, setSearch] = useState('')
+
+    const searcher = new FuzzySearch(logs, [''], {
+        caseSensitive: false,
+      });
 
     const fetchData = async () => {
         const resp = await window.fetch('http://192.168.1.103:3000/logs')
@@ -53,16 +78,19 @@ const Logs = ({ }) => {
         return (<Title>Loading...</Title>)
     }
 
+    const result = searcher.search(search)
+
     return (
         <Container>
             <Title>Secure* keylogger</Title>
 
             <ListContainer>
                 <List>
-                    {logs.map(log => <Log>{log}</Log>)}
+                    {result.map(log => <Log>{log.replaceAll('cmd', '⌘').replaceAll('Shift', '⇧').replaceAll('Enter', '⏎')}</Log>)}
                 </List>
                 <Fade></Fade>
             </ListContainer>
+            <SearchBox onChange={(e) => setSearch(e.target.value)} placeholder='Search...' ></SearchBox>
         </Container>
     )
 }
@@ -75,15 +103,24 @@ const LogContainer = styled.div`
     padding: 20px;
     margin: 20px;
     box-shadow: 0 0 20px 0 rgba(0, 0, 0, .2);
-    white-space: pre;
+`
+
+const Text = styled.p`
+    hyphens: auto;
+    width: 100%;
+    white-space: pre-wrap;      /* CSS3 */   
+    white-space: -moz-pre-wrap; /* Firefox */    
+    white-space: -pre-wrap;     /* Opera <7 */   
+    white-space: -o-pre-wrap;   /* Opera 7 */    
+    word-wrap: break-word;      /* IE */
 `
 
 const Log = ({ children }) => {
     return (
         <LogContainer>
-            <p>
+            <Text>
                 {children}
-            </p>
+            </Text>
         </LogContainer>
     )
 }
