@@ -1,5 +1,3 @@
-// import * as keylogger from 'keylogger.js';
-// or
 const keylogger = require('keylogger.js')
 const express = require('express')
 const cors = require('cors')
@@ -14,8 +12,15 @@ const replacementTable = {
 
 app.use(cors())
 // let log = 'hej'
-let log = ['hejsan detta är en log']
+let log = []
 let currentSentence = ''
+
+const addLog = () => {
+  if (currentSentence !== '') {
+    log.unshift({ timestamp: new Date().toISOString(), text: currentSentence })
+    currentSentence = ''
+  }
+}
 
 let lastTypedTime = (new Date()).getTime()
 
@@ -38,18 +43,13 @@ keylogger.start((key, isKeyUp, keyCode) => {
   // console.log('keyboard event', key, isKeyUp, keyCode)
   const now = (new Date()).getTime()
   if (now - lastTypedTime > 2000) {
-    console.log('New sentence!')
-    if (currentSentence !== '') {
-      log.unshift(currentSentence) // not if empty!
-    }
-    currentSentence = ''
+    addLog(currentSentence)
   }
   lastTypedTime = now
 
   if (isKeyUp) {
     if (key === 'Tab' && currentSentence !== '') {
-      log.unshift(currentSentence)
-      currentSentence = ''
+      addLog(currentSentence)
     }
 
     if (replacementTable[key] == null) {
