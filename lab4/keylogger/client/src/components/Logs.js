@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import FuzzySearch from 'fuzzy-search'
+import moment from 'moment'
 
 // max-width: 800px;
 const Container = styled.div`
@@ -9,7 +10,7 @@ const Container = styled.div`
     justify-content: center;
     align-items: center;
     flex: 1;
-    max-width: 500px;
+    max-width: 700px;
 `
 
 const List = styled.div`
@@ -59,7 +60,7 @@ const Logs = ({ }) => {
     const [logs, setLogs] = useState([])
     const [search, setSearch] = useState('')
 
-    const searcher = new FuzzySearch(logs, [''], {
+    const searcher = new FuzzySearch(logs, ['text'], {
         caseSensitive: false,
       });
 
@@ -86,7 +87,7 @@ const Logs = ({ }) => {
 
             <ListContainer>
                 <List>
-                    {result.map(log => <Log>{log.replaceAll('cmd', '⌘').replaceAll('Shift', '⇧').replaceAll('Enter', '⏎')}</Log>)}
+                    {result.map(log => <Log data={log}>{log.text.replaceAll('cmd', '⌘').replaceAll('Shift', '⇧').replaceAll('Enter', '⏎')}</Log>)}
                 </List>
                 <Fade></Fade>
             </ListContainer>
@@ -100,12 +101,14 @@ const LogContainer = styled.div`
     flex: 1;
     background-color: #fff;
     border-radius: 10px;
-    padding: 20px;
+    padding: 26px;
     margin: 20px;
     box-shadow: 0 0 20px 0 rgba(0, 0, 0, .2);
+    flex-direction: column;
 `
 
 const Text = styled.p`
+    margin: 0;
     hyphens: auto;
     width: 100%;
     white-space: pre-wrap;      /* CSS3 */   
@@ -115,12 +118,22 @@ const Text = styled.p`
     word-wrap: break-word;      /* IE */
 `
 
-const Log = ({ children }) => {
+const Timestamp = styled.p`
+    margin: 0;
+    color: #ccc;
+    white-space: pre;
+    text-align: right;
+`
+
+const Log = ({ children, data }) => {
     return (
         <LogContainer>
             <Text>
                 {children}
             </Text>
+            <Timestamp>
+                {moment(data.timestamp).fromNow()}
+            </Timestamp>
         </LogContainer>
     )
 }
