@@ -57,14 +57,14 @@ public class SecureAdditionClient {
 			printMenu();
 			Scanner sc = new Scanner(System.in);
 			String action = sc.nextLine();
-
+			sc.close();
 			System.out.println(">>>> Sending order " + action + " to SecureAdditionServer");
 			socketOut.println(action);
 			String response = socketIn.readLine();
 
 			if (action.indexOf("download") == 0) {
 				String[] words = action.split(" ", 3);
-				
+
 				File myObj = new File(words[1] + ".txt");
 				if (myObj.createNewFile()) {
 
@@ -95,22 +95,22 @@ public class SecureAdditionClient {
 	// The test method for the class @param args Optional port number and host name
 	public static void main(String[] args) {
 		// while (true) {
-		try {
-			InetAddress host = InetAddress.getLocalHost();
-			int port = DEFAULT_PORT;
-			if (args.length > 0) {
-				port = Integer.parseInt(args[0]);
-			}
-			if (args.length > 1) {
-				host = InetAddress.getByName(args[1]);
-			}
-			SecureAdditionClient addClient = new SecureAdditionClient(host, port);
+			try {
+				InetAddress host = InetAddress.getLocalHost();
+				int port = DEFAULT_PORT;
+				if (args.length > 0) {
+					port = Integer.parseInt(args[0]);
+				}
+				if (args.length > 1) {
+					host = InetAddress.getByName(args[1]);
+				}
+				SecureAdditionClient addClient = new SecureAdditionClient(host, port);
 
-			addClient.run();
-		} catch (UnknownHostException uhx) {
-			System.out.println(uhx);
-			uhx.printStackTrace();
-		}
+				addClient.run();
+			} catch (UnknownHostException uhx) {
+				System.out.println(uhx);
+				uhx.printStackTrace();
+			}
 		// }
 	}
 
