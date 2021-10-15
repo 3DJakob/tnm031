@@ -57,7 +57,6 @@ public class SecureAdditionClient {
 			printMenu();
 			Scanner sc = new Scanner(System.in);
 			String action = sc.nextLine();
-			sc.close();
 			System.out.println(">>>> Sending order " + action + " to SecureAdditionServer");
 			socketOut.println(action);
 			String response = socketIn.readLine();
